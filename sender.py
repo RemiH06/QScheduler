@@ -14,5 +14,5 @@ extns = [1, 4, 1, 3, 1, 1, 1]
 
 today = datetime.datetime.today().weekday()
 
-if today == 1 or today == 3:
-    scheduler.sendMeeting(mail, qbic, times, extns)
+if today == 2 or today == 4:
+        scheduler.sendMeeting(mail, qbic, times, extns)

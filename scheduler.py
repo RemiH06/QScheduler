@@ -62,5 +62,3 @@ def sendMeeting(mail, qbic, times, extns):
     except Exception as e:
         print("Error al crear la reunión:", e)
         traceback.print_exc()
-
-sendMeeting()
