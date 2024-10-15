@@ -29,8 +29,8 @@ def duration(extns):
         5: extns[5],
         6: extns[6]
     }
-
-    return timeEnd
+    today = datetime.datetime.today().weekday()
+    return timeEnd[today]
 
 def sendMeeting(mail, qbic, times, extns):   
     startTime = start(times)
