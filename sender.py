@@ -9,7 +9,7 @@ mail = os.getenv('me')
 qbic = os.getenv('qbic')
 
 times = ["", "14:00", "", "13:30", "", "", ""]
-extns = [1, 240, 1, 150, 1, 1, 1]
+extns = [1, 240, 1, 240, 1, 1, 1]
 # lunes en [0], domingo en [6]
 
 today = datetime.datetime.today().weekday()

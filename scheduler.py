@@ -35,7 +35,7 @@ def duration(extns):
 def sendMeeting(mail, qbic, times, extns):   
     startTime = start(times)
     duradura = duration(extns)
-    where = "Cubículo P-204"
+    where = "Cubículo P-215"
     queEs = "Hueco" 
     try:
         if not startTime:
