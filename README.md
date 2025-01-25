@@ -1,19 +1,21 @@
 ![Made with Python](https://forthebadge.com/images/badges/made-with-python.svg)
 
 ```ascii
- ██████╗ ███████╗ ██████╗██╗  ██╗███████╗██████╗ 
-██╔═══██╗██╔════╝██╔════╝██║  ██║██╔════╝██╔══██╗
-██║   ██║███████╗██║     ███████║█████╗  ██║  ██║
-██║▄▄ ██║╚════██║██║     ██╔══██║██╔══╝  ██║  ██║
-╚██████╔╝███████║╚██████╗██║  ██║███████╗██████╔╝
- ╚══▀▀═╝ ╚══════╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═════╝ 
+ ██████╗ ███████╗ ██████╗██╗  ██╗███████╗██████╗  
+██╔═══██╗██╔════╝██╔════╝██║  ██║██╔════╝██╔══██╗ 
+██║   ██║███████╗██║     ███████║█████╗  ██║  ██║ 
+██║▄▄ ██║╚════██║██║     ██╔══██║██╔══╝  ██║  ██║ 
+╚██████╔╝███████║╚██████╗██║  ██║███████╗██████╔╝ 
+ ╚══▀▀═╝ ╚══════╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═════╝  
 
-       by HectorH06 (@HectorH06)          version 2.0
+       by HectorH06 (@HectorH06)          version 3.0
 ```
 
 ### General Description
 
 Scheduler for Outlook meetings, two weeks in advance
+
+I created this originally to reserve cubicles at ITESO's library, but it's obsolete (at least for these purposes) since they moved their system to a local webpage.
 
 ## Installation
 
