@@ -14,8 +14,10 @@ RESERVATION_DATE = (datetime.datetime.today() + datetime.timedelta(days=14)).str
 START_TIME = "11:00"       # Hora de inicio en formato HH:MM
 DURATION = "60"            # Duración en minutos (por ejemplo, 60 para 1 hora)
 CUBICLE = "P-213"          # Cubículo a reservar
-TOPIC = "reserva"          # Tema de la reserva
+TOPIC = "reserva"          # Tema de la reserva (se usará "Hueco" para este campo)
 ATTENDEES = "3"            # Número de asistentes
+
+END_TIME = "15:00"
 
 def reservar_cubiculo():
     with sync_playwright() as p:
@@ -44,8 +46,7 @@ def reservar_cubiculo():
         page.click("input#idBtn_Back[value='No']")
         page.wait_for_timeout(12000)
 
-        # 3. Hacer clic en "Reservar un Cubículo" justo antes de seleccionar la fecha.
-        # Se inyecta una función que accede al contenido del iframe y busca el div con el texto deseado.
+        # 3. Hacer clic en "Reservar un Cubículo" (dentro del iframe) mediante inyección
         page.evaluate("""
             () => {
                 const iframe = document.querySelector("iframe#reservation");
@@ -65,40 +66,145 @@ def reservar_cubiculo():
         """)
         page.wait_for_timeout(2000)
 
-        # 4. Seleccionar la fecha usando el calendario:
-        # Convertir RESERVATION_DATE ("YYYY-MM-DD") al formato "YYYY/(mes-1)/D"
+        # 4. Ajustar la fecha y hora de comienzo dentro del iframe
+        # Convertir RESERVATION_DATE a formato "dd/mm/yyyy"
         reservation_date_obj = datetime.datetime.strptime(RESERVATION_DATE, "%Y-%m-%d")
-        calendar_date_value = f"{reservation_date_obj.year}/{reservation_date_obj.month - 1}/{reservation_date_obj.day}"
-        page.wait_for_selector("#calendar", timeout=5000)
-        page.click(f"#calendar a[data-value='{calendar_date_value}']")
+        formatted_date = reservation_date_obj.strftime("%d/%m/%Y")
+        page.evaluate(f"""
+            () => {{
+                const iframe = document.querySelector("iframe#reservation");
+                if (iframe) {{
+                    const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    if (innerDoc) {{
+                        // Ajustar el datepicker
+                        const dateInput = innerDoc.querySelector("input[data-role='datepicker']");
+                        if (dateInput) {{
+                            dateInput.value = "{formatted_date}";
+                            dateInput.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                        }}
+                        // Ajustar el timepicker
+                        const timeInput = innerDoc.querySelector("input[data-role='timepicker']");
+                        if (timeInput) {{
+                            timeInput.value = "{START_TIME}";
+                            timeInput.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                        }}
+                    }}
+                }}
+            }}
+        """)
         page.wait_for_timeout(2000)
         
-        # 5. Configurar el slider de "Comienzo" (hora de inicio)
-        # Rango del slider: 510 a 1110 (minutos). Ejemplo: "11:00" = 660 minutos.
-        desired_hour, desired_minute = map(int, START_TIME.split(":"))
-        desired_minutes = desired_hour * 60 + desired_minute
-        min_minutes = 510
-        max_minutes = 1110
-        fraction_time = (desired_minutes - min_minutes) / (max_minutes - min_minutes)
-        track = page.wait_for_selector("#ctl2-slider .track", timeout=5000)
-        track_box = track.bounding_box()
-        target_x_time = track_box["x"] + fraction_time * track_box["width"]
-        target_y_time = track_box["y"] + track_box["height"] / 2
-        page.mouse.click(target_x_time, target_y_time)
+        # 6. Inyectar los valores para el campo de fin (endDate2) dentro del iframe:
+        # Se establece la misma fecha que la de inicio y la hora final (START_TIME + 4 horas)
+        page.evaluate(f"""
+            () => {{
+                const iframe = document.querySelector("iframe#reservation");
+                if (iframe) {{
+                    const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    if (innerDoc) {{
+                        // Campo de fecha final
+                        const endDateInput = innerDoc.querySelector("input[data-role='datepicker'][data-bind*='value: endDate2']");
+                        if (endDateInput) {{
+                            endDateInput.value = "{formatted_date}";
+                            endDateInput.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                        }}
+                        // Campo de hora final
+                        const endTimeInput = innerDoc.querySelector("input[data-role='timepicker'][data-bind*='value: endDate2']");
+                        if (endTimeInput) {{
+                            endTimeInput.value = "{END_TIME}";
+                            endTimeInput.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                        }}
+                    }}
+                }}
+            }}
+        """)
+        page.wait_for_timeout(2000)
+
+        # 7. Rellenar el campo "Tema" con el texto "Hueco" dentro del iframe
+        page.evaluate("""
+            () => {
+                const iframe = document.querySelector("iframe#reservation");
+                if (iframe) {
+                    const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    if (innerDoc) {
+                        const topicInput = innerDoc.querySelector("input#ctl4");
+                        if (topicInput) {
+                            topicInput.value = "Hueco";
+                            topicInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
+                    }
+                }
+            }
+        """)
         page.wait_for_timeout(1000)
+
+        # 6. Inyectar el valor para el cubículo "Cubículo P-213" dentro del iframe:
+        # Se llena el input de filtro y se simula clic en el botón de búsqueda.
+        page.evaluate(
+        """(cubicleValue) => {
+            const iframe = document.querySelector("iframe#reservation");
+            if (iframe) {
+                const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+                if (innerDoc) {
+                    // Buscar el input del filtro de cubículo (por su placeholder)
+                    const cubicleInput = innerDoc.querySelector("input.sw2-list-item-search-control[placeholder='Filtro de Cubículo']");
+                    if (cubicleInput) {
+                        cubicleInput.value = `Cubículo ${cubicleValue}`;
+                        cubicleInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                    // Simular clic en el enlace de búsqueda (se asume que es el único <a> dentro de la tabla)
+                    const searchLink = innerDoc.querySelector("table.sw2-list-item-search-table a");
+                    if (searchLink) {
+                        searchLink.click();
+                    }
+                }
+            }
+        }""",
+        CUBICLE
+        )
+        page.wait_for_timeout(2000)
+
+        # 8. Inyección: Dentro del iframe, marcar la checkbox correspondiente (usando click)
+        page.evaluate(
+            """() => {
+                const iframe = document.querySelector("iframe#reservation");
+                if (iframe) {
+                    const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    if (innerDoc) {
+                        const checkbox = innerDoc.querySelector("input[type='checkbox'][id='4e56b554-5c45-4f3a-9929-48c5f293542a']");
+                        if (checkbox) {
+                            checkbox.click();
+                        }
+                    }
+                }
+            }"""
+        )
+        page.wait_for_timeout(1000)
+
+        # 9. Inyección: Dentro del iframe, presionar el botón que dice "Correcto"
+        page.evaluate(
+            """() => {
+                const iframe = document.querySelector("iframe#reservation");
+                if (iframe) {
+                    const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    if (innerDoc) {
+                        const buttons = innerDoc.querySelectorAll("button");
+                        for (const btn of buttons) {
+                            if (btn.textContent.trim() === "Correcto") {
+                                btn.click();
+                                break;
+                            }
+                        }
+                    }
+                }
+            }"""
+        )
+        page.wait_for_timeout(2000)
         
-        # 6. Configurar el slider de "Duración"
-        # Rango del slider: 30 a 600 minutos.
-        desired_duration = int(DURATION)
-        min_duration = 30
-        max_duration = 600
-        fraction_duration = (desired_duration - min_duration) / (max_duration - min_duration)
-        track_duration = page.wait_for_selector("#ctl3-slider .track", timeout=5000)
-        track_duration_box = track_duration.bounding_box()
-        target_x_duration = track_duration_box["x"] + fraction_duration * track_duration_box["width"]
-        target_y_duration = track_duration_box["y"] + track_duration_box["height"] / 2
-        page.mouse.click(target_x_duration, target_y_duration)
-        page.wait_for_timeout(1000)
+        # 7. Confirmar la reserva
+        page.wait_for_selector("button:has-text('Confirmar Reserva')", timeout=5000)
+        page.click("button:has-text('Confirmar Reserva')")
+        page.wait_for_timeout(5000)
 
         print("✅ Reserva completada exitosamente.")
         browser.close()
