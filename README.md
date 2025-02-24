@@ -13,9 +13,10 @@
 
 ### General Description
 
-Scheduler for Outlook meetings, two weeks in advance
+Scheduler for Outlook meetings, two weeks in advance (sender uses scheduler). NOT RECOMMENDED ❌
+Scheduler for meetings via smartway2book (sch uses scraper). RECOMMENDED ✅
 
-I created this originally to reserve cubicles at ITESO's library, but it's obsolete (at least for these purposes) since they moved their system to a local webpage.
+I created this originally to reserve cubicles at ITESO's library, but at least for these purposes it stopped working since they moved their system to smartway2book. Because of this I had to create a scraper. It works and it's functional.
 
 ## Installation
 
@@ -23,18 +24,17 @@ I created this originally to reserve cubicles at ITESO's library, but it's obsol
 
    `pip install pywin32`
    `pip install python-dotenv`
+   `pip install playwright`
 
-2. Make sure you have Outlook (old) installed
+2. Make sure you have the webdriver for a chrome version
 
-3. Windows Only
+   If you're trying to use the old version make sure you have Outlook (old) installed (only works with MS tho)
 
-   If you have another OS, replace the win32 libraries in order for you to access Outlook
+3. Secrets
 
-4. Secrets
+   You will need to create a .secrets file with 2 params: email and password
 
-   You will need to create a .secrets file with 2 params: email and location
-
-5. Task Scheduler
+4. Task Scheduler
 
    Used MS Task Scheduler to program the task so it runs everyday
 
@@ -42,3 +42,4 @@ I created this originally to reserve cubicles at ITESO's library, but it's obsol
 ## Future Features
 
 - GUI
+- More browsers support
