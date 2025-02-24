@@ -93,39 +93,20 @@ def crumble(daysAway: int = dayS, start: str = startTimE, end: str = endTimE, q:
 
 
         # 5. Hora inicio
-        page.evaluate(f"""
-            () => {{
-                const iframe = document.querySelector("iframe#reservation");
-                if (iframe) {{
-                    const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
-                    if (innerDoc) {{
-                        const timeInput = innerDoc.querySelector("input[data-role='timepicker']");
-                        if (timeInput) {{
-                            timeInput.value = "{START_TIME}";
-                            timeInput.dispatchEvent(new Event('input', {{ bubbles: true }}));
-                        }}
-                    }}
-                }}
-            }}
-        """)
+        frame = page.frame_locator("iframe#reservation")
+        start_time_input = frame.locator("input[data-role='timepicker'][data-bind*='startDate2']")
+        start_time_input.wait_for()
+        start_time_input.click()
+        start_time_input.fill("")
+        start_time_input.type(START_TIME, delay=100)
         page.wait_for_timeout(500)
         
         # 6. Hora fin
-        page.evaluate(f"""
-            () => {{
-                const iframe = document.querySelector("iframe#reservation");
-                if (iframe) {{
-                    const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
-                    if (innerDoc) {{
-                        const endTimeInput = innerDoc.querySelector("input[data-role='timepicker'][data-bind*='value: endDate2']");
-                        if (endTimeInput) {{
-                            endTimeInput.value = "{END_TIME}";
-                            endTimeInput.dispatchEvent(new Event('input', {{ bubbles: true }}));
-                        }}
-                    }}
-                }}
-            }}
-        """)
+        end_time_input = frame.locator("input[data-role='timepicker'][data-bind*='endDate2']")
+        end_time_input.wait_for()
+        end_time_input.click()
+        end_time_input.fill("")
+        end_time_input.type(END_TIME, delay=100)
         page.wait_for_timeout(500)
 
 
