@@ -10,11 +10,16 @@ mE = os.getenv("me")
 qocupaS = os.getenv("qocupas")
 
 # Params
-dayS = 14
-startTimE = "11:00"       # HH:MM
-endTimE = "15:00"         # also HH:MM
+dayS = 14                 # A futuro
 cubiclE = "P-213"         # Q
 topiC = "Hueco"           # Topic (strictly necessary)
 attendeeS = "3"           # Attendees amount
 
-crumble(daysAway=dayS, start=startTimE, end=endTimE, q=cubiclE, name=topiC, a=attendeeS, email=mE, pw=qocupaS)
+startTimE = ["", "11:00", "16:00", "14:00", "", "", ""]
+endTimE = ["", "15:00", "20:00", "18:00", "", "", ""]
+# lunes en [0], domingo en [6]
+
+today = datetime.datetime.today().weekday()
+
+if today >= 1 and today <= 3:
+        crumble(daysAway=dayS, start=startTimE[today], end=endTimE[today], q=cubiclE, name=topiC, a=attendeeS, email=mE, pw=qocupaS)

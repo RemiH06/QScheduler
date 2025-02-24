@@ -9,7 +9,7 @@ mE = os.getenv("me")
 qocupaS = os.getenv("qocupas")
 
 # Params
-dayS = 14
+dayS = 14                 # A futuro
 startTimE = "11:00"       # HH:MM
 endTimE = "15:00"         # also HH:MM
 cubiclE = "P-213"         # Q
@@ -27,7 +27,7 @@ def crumble(daysAway: int = dayS, start: str = startTimE, end: str = endTimE, q:
     PASSWORD = pw
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
+        browser = p.chromium.launch(headless=True)
         context = browser.new_context()
         page = context.new_page()
         
