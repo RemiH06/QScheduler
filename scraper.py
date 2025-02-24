@@ -36,6 +36,7 @@ def crumble(daysAway: int = dayS, start: str = startTimE, end: str = endTimE, q:
         page.goto("https://iteso.smartway2book.com")
         page.wait_for_timeout(3500)
 
+
         # 2. Login
         page.wait_for_selector("input[name='loginfmt']", timeout=5000)
         page.fill("input[name='loginfmt']", EMAIL)
@@ -53,7 +54,24 @@ def crumble(daysAway: int = dayS, start: str = startTimE, end: str = endTimE, q:
         page.click("input#idBtn_Back[value='No']")
         page.wait_for_timeout(12000)
 
-        # 3. Reservar un cubículo (usamos inyección de JS porque está dentro de un iframe)
+
+        # 3. Seleccionar fecha en el calendario mediante dos clicks
+        # Primer click para asomarnos en el calendario
+        date_click1 = datetime.datetime.today() + datetime.timedelta(days=daysAway - 7)
+        calendar_date_value_1 = f"{date_click1.year}/{date_click1.month - 1}/{date_click1.day}"
+        page.wait_for_selector("#calendar", timeout=5000)
+        page.click(f"#calendar a[data-value='{calendar_date_value_1}']")
+        page.wait_for_timeout(1000)
+
+        # Segundo click para seleccionar el mero día
+        date_click2 = datetime.datetime.today() + datetime.timedelta(days=daysAway)
+        calendar_date_value_2 = f"{date_click2.year}/{date_click2.month - 1}/{date_click2.day}"
+        page.wait_for_selector("#calendar", timeout=5000)
+        page.click(f"#calendar a[data-value='{calendar_date_value_2}']")
+        page.wait_for_timeout(2000)
+
+
+        # 4. Reservar un cubículo (usamos inyección de JS porque está dentro de un iframe)
         page.evaluate("""
             () => {
                 const iframe = document.querySelector("iframe#reservation");
@@ -71,24 +89,16 @@ def crumble(daysAway: int = dayS, start: str = startTimE, end: str = endTimE, q:
                 }
             }
         """)
-        page.wait_for_timeout(1500)
+        page.wait_for_timeout(2000)
 
-        # 4. Fecha y hora inicio "dd/mm/yyyy"
-        reservation_date_obj = datetime.datetime.strptime(RESERVATION_DATE, "%Y-%m-%d")
-        formatted_date = reservation_date_obj.strftime("%d/%m/%Y")
+
+        # 5. Hora inicio
         page.evaluate(f"""
             () => {{
                 const iframe = document.querySelector("iframe#reservation");
                 if (iframe) {{
                     const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
                     if (innerDoc) {{
-                        // Ajustar el datepicker
-                        const dateInput = innerDoc.querySelector("input[data-role='datepicker']");
-                        if (dateInput) {{
-                            dateInput.value = "{formatted_date}";
-                            dateInput.dispatchEvent(new Event('input', {{ bubbles: true }}));
-                        }}
-                        // Ajustar el timepicker
                         const timeInput = innerDoc.querySelector("input[data-role='timepicker']");
                         if (timeInput) {{
                             timeInput.value = "{START_TIME}";
@@ -100,20 +110,13 @@ def crumble(daysAway: int = dayS, start: str = startTimE, end: str = endTimE, q:
         """)
         page.wait_for_timeout(500)
         
-        # 5. Fecha y hora fin "dd/mm/yyyy"
+        # 6. Hora fin
         page.evaluate(f"""
             () => {{
                 const iframe = document.querySelector("iframe#reservation");
                 if (iframe) {{
                     const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
                     if (innerDoc) {{
-                        // Campo de fecha final
-                        const endDateInput = innerDoc.querySelector("input[data-role='datepicker'][data-bind*='value: endDate2']");
-                        if (endDateInput) {{
-                            endDateInput.value = "{formatted_date}";
-                            endDateInput.dispatchEvent(new Event('input', {{ bubbles: true }}));
-                        }}
-                        // Campo de hora final
                         const endTimeInput = innerDoc.querySelector("input[data-role='timepicker'][data-bind*='value: endDate2']");
                         if (endTimeInput) {{
                             endTimeInput.value = "{END_TIME}";
@@ -125,26 +128,17 @@ def crumble(daysAway: int = dayS, start: str = startTimE, end: str = endTimE, q:
         """)
         page.wait_for_timeout(500)
 
-        # 6. Le ponemos nombre
-        page.evaluate(f"""
-            () => {{
-                const iframe = document.querySelector("iframe#reservation");
-                if (iframe) {{
-                    const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
-                    if (innerDoc) {{
-                        const topicInput = innerDoc.querySelector("input#ctl4");
-                        if (topicInput) {{
-                            topicInput.value = "{TOPIC}";
-                            topicInput.dispatchEvent(new Event('input', {{ bubbles: true }}));
-                        }}
-                    }}
-                }}
-            }}
-        """)
+
+        # 7. Le ponemos nombre
+        frame = page.frame_locator("iframe#reservation")
+        topic_input = frame.locator("input#ctl4")
+        topic_input.click()
+        topic_input.fill("")
+        topic_input.type(TOPIC, delay=100)
         page.wait_for_timeout(500)
 
 
-        # 7. En el input de ubicación se pone el nombre del cubículo, también se hace click para entrar en su selección
+        # 8. En el input de ubicación se pone el nombre del cubículo, también se hace click para entrar en su selección
         page.evaluate(
         """(cubicleValue) => {
             const iframe = document.querySelector("iframe#reservation");
@@ -169,7 +163,8 @@ def crumble(daysAway: int = dayS, start: str = startTimE, end: str = endTimE, q:
         )
         page.wait_for_timeout(1000)
 
-        # 8: Click en el cubículo para seleccionarlo
+
+        # 9. Click en el cubículo para seleccionarlo
         page.evaluate(
             """
             () => {
@@ -191,7 +186,8 @@ def crumble(daysAway: int = dayS, start: str = startTimE, end: str = endTimE, q:
         )
         page.wait_for_timeout(1000)
 
-        # 9. Confirmamos cubículo
+
+        # 10. Confirmamos cubículo
         page.evaluate(
             """
             () => {
@@ -210,25 +206,17 @@ def crumble(daysAway: int = dayS, start: str = startTimE, end: str = endTimE, q:
         )
         page.wait_for_timeout(1500)
 
-        # 10. Llenamos campo de cantidad de asistentes
-        page.evaluate(f"""
-            () => {{
-                const iframe = document.querySelector("iframe#reservation");
-                if (iframe) {{
-                    const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
-                    if (innerDoc) {{
-                        const attendeesInput = innerDoc.querySelector("input#ctl8");
-                        if (attendeesInput) {{
-                            attendeesInput.value = "{ATTENDEES}";
-                            attendeesInput.dispatchEvent(new Event('input', {{ bubbles: true }}));
-                        }}
-                    }}
-                }}
-            }}
-        """)
+
+        # 11. Llenamos campo de cantidad de asistentes
+        frame = page.frame_locator("iframe#reservation")
+        attendees_input = frame.locator("input#ctl8")
+        attendees_input.click()
+        attendees_input.fill("")
+        attendees_input.type(ATTENDEES, delay=100)
         page.wait_for_timeout(500)
 
-        # 11. Guardamos
+
+        # 12. Guardamos
         page.evaluate("""
             () => {
                 const iframe = document.querySelector("iframe#reservation");
@@ -246,7 +234,7 @@ def crumble(daysAway: int = dayS, start: str = startTimE, end: str = endTimE, q:
         page.wait_for_timeout(5000)
 
         print("Reserva completada exitosamente.")
-        browser.close()
+        #browser.close()
 
 if __name__ == "__main__":
     crumble(daysAway=dayS, start=startTimE, end=endTimE, q=cubiclE, name=topiC, a=attendeeS, email=mE, pw=qocupaS)
