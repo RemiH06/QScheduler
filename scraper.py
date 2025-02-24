@@ -1,40 +1,47 @@
-import time
 import os
 from dotenv import load_dotenv
 import datetime
 from playwright.sync_api import sync_playwright
 
-# VARIABLES DE CONFIGURACIÓN
+# Private info
 load_dotenv(".secrets")
-EMAIL = os.getenv("me")
-PASSWORD = os.getenv("qocupas")
+mE = os.getenv("me")
+qocupaS = os.getenv("qocupas")
 
-# Parámetros de la reserva (modificables según necesidad)
-RESERVATION_DATE = (datetime.datetime.today() + datetime.timedelta(days=14)).strftime("%Y-%m-%d")
-START_TIME = "11:00"       # Hora de inicio en formato HH:MM
-DURATION = "60"            # Duración en minutos (por ejemplo, 60 para 1 hora)
-CUBICLE = "P-213"          # Cubículo a reservar
-TOPIC = "reserva"          # Tema de la reserva (se usará "Hueco" para este campo)
-ATTENDEES = "3"            # Número de asistentes
+# Params
+dayS = 14
+startTimE = "11:00"       # HH:MM
+endTimE = "15:00"         # also HH:MM
+cubiclE = "P-213"         # Q
+topiC = "Hueco"           # Topic (strictly necessary)
+attendeeS = "3"           # Attendees amount
 
-END_TIME = "15:00"
+def crumble(daysAway: int = dayS, start: str = startTimE, end: str = endTimE, q: str = cubiclE, name: str = topiC, a=attendeeS, email: str = mE, pw: str = qocupaS):
+    RESERVATION_DATE = (datetime.datetime.today() + datetime.timedelta(days=daysAway)).strftime("%Y-%m-%d")
+    START_TIME = start
+    END_TIME = end
+    CUBICLE = q
+    TOPIC = name
+    ATTENDEES = a
+    EMAIL = email
+    PASSWORD = pw
 
-def reservar_cubiculo():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
         context = browser.new_context()
         page = context.new_page()
+        
 
-        # 1. Acceder a la página principal y esperar
+        # 1. Página de porquería
         page.goto("https://iteso.smartway2book.com")
         page.wait_for_timeout(3500)
 
-        # 2. Pantalla de login:
+        # 2. Login
         page.wait_for_selector("input[name='loginfmt']", timeout=5000)
         page.fill("input[name='loginfmt']", EMAIL)
         page.wait_for_selector("input#idSIButton9[value='Siguiente']", timeout=10000)
         page.click("input#idSIButton9[value='Siguiente']")
-        page.wait_for_timeout(3500)
+        page.wait_for_timeout(2500)
 
         page.wait_for_selector("input[name='passwd']", timeout=5000)
         page.fill("input[name='passwd']", PASSWORD)
@@ -46,7 +53,7 @@ def reservar_cubiculo():
         page.click("input#idBtn_Back[value='No']")
         page.wait_for_timeout(12000)
 
-        # 3. Hacer clic en "Reservar un Cubículo" (dentro del iframe) mediante inyección
+        # 3. Reservar un cubículo (usamos inyección de JS porque está dentro de un iframe)
         page.evaluate("""
             () => {
                 const iframe = document.querySelector("iframe#reservation");
@@ -64,10 +71,9 @@ def reservar_cubiculo():
                 }
             }
         """)
-        page.wait_for_timeout(2000)
+        page.wait_for_timeout(1500)
 
-        # 4. Ajustar la fecha y hora de comienzo dentro del iframe
-        # Convertir RESERVATION_DATE a formato "dd/mm/yyyy"
+        # 4. Fecha y hora inicio "dd/mm/yyyy"
         reservation_date_obj = datetime.datetime.strptime(RESERVATION_DATE, "%Y-%m-%d")
         formatted_date = reservation_date_obj.strftime("%d/%m/%Y")
         page.evaluate(f"""
@@ -92,10 +98,9 @@ def reservar_cubiculo():
                 }}
             }}
         """)
-        page.wait_for_timeout(2000)
+        page.wait_for_timeout(500)
         
-        # 6. Inyectar los valores para el campo de fin (endDate2) dentro del iframe:
-        # Se establece la misma fecha que la de inicio y la hora final (START_TIME + 4 horas)
+        # 5. Fecha y hora fin "dd/mm/yyyy"
         page.evaluate(f"""
             () => {{
                 const iframe = document.querySelector("iframe#reservation");
@@ -118,28 +123,28 @@ def reservar_cubiculo():
                 }}
             }}
         """)
-        page.wait_for_timeout(2000)
+        page.wait_for_timeout(500)
 
-        # 7. Rellenar el campo "Tema" con el texto "Hueco" dentro del iframe
-        page.evaluate("""
-            () => {
+        # 6. Le ponemos nombre
+        page.evaluate(f"""
+            () => {{
                 const iframe = document.querySelector("iframe#reservation");
-                if (iframe) {
+                if (iframe) {{
                     const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
-                    if (innerDoc) {
+                    if (innerDoc) {{
                         const topicInput = innerDoc.querySelector("input#ctl4");
-                        if (topicInput) {
-                            topicInput.value = "Hueco";
-                            topicInput.dispatchEvent(new Event('input', { bubbles: true }));
-                        }
-                    }
-                }
-            }
+                        if (topicInput) {{
+                            topicInput.value = "{TOPIC}";
+                            topicInput.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                        }}
+                    }}
+                }}
+            }}
         """)
-        page.wait_for_timeout(1000)
+        page.wait_for_timeout(500)
 
-        # 6. Inyectar el valor para el cubículo "Cubículo P-213" dentro del iframe:
-        # Se llena el input de filtro y se simula clic en el botón de búsqueda.
+
+        # 7. En el input de ubicación se pone el nombre del cubículo, también se hace click para entrar en su selección
         page.evaluate(
         """(cubicleValue) => {
             const iframe = document.querySelector("iframe#reservation");
@@ -162,52 +167,86 @@ def reservar_cubiculo():
         }""",
         CUBICLE
         )
-        page.wait_for_timeout(2000)
-
-        # 8. Inyección: Dentro del iframe, marcar la checkbox correspondiente (usando click)
-        page.evaluate(
-            """() => {
-                const iframe = document.querySelector("iframe#reservation");
-                if (iframe) {
-                    const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
-                    if (innerDoc) {
-                        const checkbox = innerDoc.querySelector("input[type='checkbox'][id='4e56b554-5c45-4f3a-9929-48c5f293542a']");
-                        if (checkbox) {
-                            checkbox.click();
-                        }
-                    }
-                }
-            }"""
-        )
         page.wait_for_timeout(1000)
 
-        # 9. Inyección: Dentro del iframe, presionar el botón que dice "Correcto"
+        # 8: Click en el cubículo para seleccionarlo
         page.evaluate(
-            """() => {
+            """
+            () => {
                 const iframe = document.querySelector("iframe#reservation");
                 if (iframe) {
                     const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
                     if (innerDoc) {
-                        const buttons = innerDoc.querySelectorAll("button");
-                        for (const btn of buttons) {
-                            if (btn.textContent.trim() === "Correcto") {
-                                btn.click();
+                        const labelSpans = innerDoc.querySelectorAll("div.ll-location-name label span");
+                        for (const span of labelSpans) {
+                            if (span.textContent.trim() === "Cubículo P-213") {
+                                span.click();
                                 break;
                             }
                         }
                     }
                 }
-            }"""
+            }
+            """
         )
-        page.wait_for_timeout(2000)
-        
-        # 7. Confirmar la reserva
-        page.wait_for_selector("button:has-text('Confirmar Reserva')", timeout=5000)
-        page.click("button:has-text('Confirmar Reserva')")
+        page.wait_for_timeout(1000)
+
+        # 9. Confirmamos cubículo
+        page.evaluate(
+            """
+            () => {
+                const iframe = document.querySelector("iframe#reservation");
+                if (iframe) {
+                    const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    if (innerDoc) {
+                        const correctoButton = innerDoc.querySelector("div.button.green-button[data-bind*='saveAndClose']");
+                        if (correctoButton) {
+                            correctoButton.click();
+                        }
+                    }
+                }
+            }
+            """
+        )
+        page.wait_for_timeout(1500)
+
+        # 10. Llenamos campo de cantidad de asistentes
+        page.evaluate(f"""
+            () => {{
+                const iframe = document.querySelector("iframe#reservation");
+                if (iframe) {{
+                    const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    if (innerDoc) {{
+                        const attendeesInput = innerDoc.querySelector("input#ctl8");
+                        if (attendeesInput) {{
+                            attendeesInput.value = "{ATTENDEES}";
+                            attendeesInput.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                        }}
+                    }}
+                }}
+            }}
+        """)
+        page.wait_for_timeout(500)
+
+        # 11. Guardamos
+        page.evaluate("""
+            () => {
+                const iframe = document.querySelector("iframe#reservation");
+                if (iframe) {
+                    const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    if (innerDoc) {
+                        const saveButton = innerDoc.querySelector("#edit-reservation-save-button");
+                        if (saveButton) {
+                            saveButton.click();
+                        }
+                    }
+                }
+            }
+        """)
         page.wait_for_timeout(5000)
 
-        print("✅ Reserva completada exitosamente.")
+        print("Reserva completada exitosamente.")
         browser.close()
 
 if __name__ == "__main__":
-    reservar_cubiculo()
+    crumble(daysAway=dayS, start=startTimE, end=endTimE, q=cubiclE, name=topiC, a=attendeeS, email=mE, pw=qocupaS)
