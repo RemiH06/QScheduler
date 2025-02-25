@@ -14,6 +14,7 @@
 ### General Description
 
 Scheduler for Outlook meetings, two weeks in advance (sender uses scheduler). NOT RECOMMENDED ❌
+
 Scheduler for meetings via smartway2book (sch uses scraper). RECOMMENDED ✅
 
 I created this originally to reserve cubicles at ITESO's library, but at least for these purposes it stopped working since they moved their system to smartway2book. Because of this I had to create a scraper. It works and it's functional.
