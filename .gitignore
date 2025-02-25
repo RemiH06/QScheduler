@@ -1,3 +1,4 @@
 .secrets
 QSCHED.bat
 QSCHED.txt
+__pycache__/*
