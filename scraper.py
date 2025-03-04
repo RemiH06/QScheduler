@@ -34,7 +34,7 @@ def crumble(daysAway: int = dayS, start: str = startTimE, end: str = endTimE, q:
 
         # 1. Página de porquería
         page.goto("https://iteso.smartway2book.com")
-        page.wait_for_timeout(3500)
+        page.wait_for_timeout(10000)
 
 
         # 2. Login
