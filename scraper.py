@@ -27,14 +27,14 @@ def crumble(daysAway: int = dayS, start: str = startTimE, end: str = endTimE, q:
     PASSWORD = pw
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browser = p.chromium.launch(headless=False)
         context = browser.new_context()
         page = context.new_page()
         
 
         # 1. Página de porquería
         page.goto("https://iteso.smartway2book.com")
-        page.wait_for_timeout(10000)
+        page.wait_for_timeout(15000)
 
 
         # 2. Login

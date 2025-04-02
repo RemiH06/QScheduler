@@ -10,7 +10,7 @@ mE = os.getenv("me")
 qocupaS = os.getenv("qocupas")
 
 # Params
-dayS = 14                 # A futuro
+dayS = 7                 # A futuro
 cubiclE = "P-213"         # Q
 topiC = "Hueco"           # Topic (strictly necessary)
 attendeeS = "3"           # Attendees amount
@@ -21,5 +21,19 @@ endTimE = ["", "15:00", "20:00", "18:00", "", "", ""]
 
 today = datetime.datetime.today().weekday()
 
-if today >= 1 and today <= 3:
-        crumble(daysAway=dayS, start=startTimE[today], end=endTimE[today], q=cubiclE, name=topiC, a=attendeeS, email=mE, pw=qocupaS)
+#if today >= 1 and today <= 3:
+#        crumble(daysAway=dayS, start=startTimE[today], end=endTimE[today], q=cubiclE, name=topiC, a=attendeeS, email=mE, pw=qocupaS)
+
+for day_offset in range(7):
+    target_day = (today + day_offset) % 7
+    daysAway = dayS + day_offset
+    
+    if startTimE[target_day] and endTimE[target_day]:
+        crumble(daysAway=daysAway, 
+               start=startTimE[target_day], 
+               end=endTimE[target_day], 
+               q=cubiclE, 
+               name=topiC, 
+               a=attendeeS, 
+               email=mE, 
+               pw=qocupaS)
