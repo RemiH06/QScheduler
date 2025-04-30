@@ -52,7 +52,7 @@ def crumble(daysAway: int = dayS, start: str = startTimE, end: str = endTimE, q:
 
         page.wait_for_selector("input#idBtn_Back[value='No']", timeout=5000)
         page.click("input#idBtn_Back[value='No']")
-        page.wait_for_timeout(12000)
+        page.wait_for_timeout(20000)
 
 
         # 3. Seleccionar fecha en el calendario mediante dos clicks

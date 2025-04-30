@@ -11,12 +11,12 @@ qocupaS = os.getenv("qocupas")
 
 # Params
 dayS = 7                 # A futuro
-cubiclE = "P-213"         # Q
 topiC = "Hueco"           # Topic (strictly necessary)
 attendeeS = "3"           # Attendees amount
 
 startTimE = ["", "11:00", "16:00", "14:00", "", "", ""]
 endTimE = ["", "15:00", "20:00", "18:00", "", "", ""]
+cubiclE = ["", "P-302", "P-302", "P-302", "", "", ""]
 # lunes en [0], domingo en [6]
 
 today = datetime.datetime.today().weekday()
@@ -32,7 +32,7 @@ for day_offset in range(7):
         crumble(daysAway=daysAway, 
                start=startTimE[target_day], 
                end=endTimE[target_day], 
-               q=cubiclE, 
+               q=cubiclE[target_day], 
                name=topiC, 
                a=attendeeS, 
                email=mE, 
