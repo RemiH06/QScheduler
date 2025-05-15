@@ -10,13 +10,13 @@ mE = os.getenv("me")
 qocupaS = os.getenv("qocupas")
 
 # Params
-dayS = 7                 # A futuro
+dayS = 7                  # A futuro
 topiC = "Hueco"           # Topic (strictly necessary)
 attendeeS = "3"           # Attendees amount
 
 startTimE = ["", "11:00", "16:00", "14:00", "", "", ""]
 endTimE = ["", "15:00", "20:00", "18:00", "", "", ""]
-cubiclE = ["", "P-302", "P-302", "P-302", "", "", ""]
+cubiclE = ["", "P-211", "P-302", "P-213", "", "", ""]
 # lunes en [0], domingo en [6]
 
 today = datetime.datetime.today().weekday()

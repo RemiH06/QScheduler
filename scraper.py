@@ -147,23 +147,22 @@ def crumble(daysAway: int = dayS, start: str = startTimE, end: str = endTimE, q:
 
         # 9. Click en el cubículo para seleccionarlo
         page.evaluate(
-            """
-            () => {
-                const iframe = document.querySelector("iframe#reservation");
-                if (iframe) {
-                    const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
-                    if (innerDoc) {
-                        const labelSpans = innerDoc.querySelectorAll("div.ll-location-name label span");
-                        for (const span of labelSpans) {
-                            if (span.textContent.trim() === "Cubículo P-213") {
-                                span.click();
-                                break;
-                            }
+        """(cubicleValue) => {
+            const iframe = document.querySelector("iframe#reservation");
+            if (iframe) {
+                const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+                if (innerDoc) {
+                    const labelSpans = innerDoc.querySelectorAll("div.ll-location-name label span");
+                    for (const span of labelSpans) {
+                        if (span.textContent.trim() == `Cubículo ${cubicleValue}`) {
+                            span.click();
+                            break;
                         }
                     }
                 }
             }
-            """
+        }""",
+        CUBICLE
         )
         page.wait_for_timeout(1000)
 
