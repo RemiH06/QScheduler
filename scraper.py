@@ -34,7 +34,7 @@ def crumble(daysAway: int = dayS, start: str = startTimE, end: str = endTimE, q:
 
         # 1. Página de porquería
         page.goto("https://iteso.smartway2book.com")
-        page.wait_for_timeout(15000)
+        page.wait_for_timeout(6000)
 
 
         # 2. Login
@@ -52,23 +52,55 @@ def crumble(daysAway: int = dayS, start: str = startTimE, end: str = endTimE, q:
 
         page.wait_for_selector("input#idBtn_Back[value='No']", timeout=5000)
         page.click("input#idBtn_Back[value='No']")
-        page.wait_for_timeout(20000)
+        page.wait_for_timeout(10000)
 
 
         # 3. Seleccionar fecha en el calendario mediante dos clicks
         # Primer click para asomarnos en el calendario
         date_click1 = datetime.datetime.today() + datetime.timedelta(days=daysAway - 7)
         calendar_date_value_1 = f"{date_click1.year}/{date_click1.month - 1}/{date_click1.day}"
-        page.wait_for_selector("#calendar", timeout=5000)
-        page.click(f"#calendar a[data-value='{calendar_date_value_1}']")
-        page.wait_for_timeout(1000)
 
-        # Segundo click para seleccionar el mero día
         date_click2 = datetime.datetime.today() + datetime.timedelta(days=daysAway)
         calendar_date_value_2 = f"{date_click2.year}/{date_click2.month - 1}/{date_click2.day}"
-        page.wait_for_selector("#calendar", timeout=5000)
-        page.click(f"#calendar a[data-value='{calendar_date_value_2}']")
-        page.wait_for_timeout(2000)
+
+        # Intentar encontrar el calendario
+        if page.query_selector("#calendar"):
+            # Si encuentra calendario, hacer clicks normales
+            page.click(f"#calendar a[data-value='{calendar_date_value_1}']")
+            page.wait_for_timeout(1000)
+
+            page.click(f"#calendar a[data-value='{calendar_date_value_2}']")
+            page.wait_for_timeout(2000)
+        else:
+            # Si no encuentra calendario, hacer click en botón "Ir a Classic Connect" después de iniciar sesión (otra vez xd)
+            page.wait_for_selector("input[name='loginfmt']", timeout=5000)
+            page.fill("input[name='loginfmt']", EMAIL)
+            page.wait_for_selector("input#idSIButton9[value='Siguiente']", timeout=10000)
+            page.click("input#idSIButton9[value='Siguiente']")
+            page.wait_for_timeout(2500)
+
+            page.wait_for_selector("input[name='passwd']", timeout=5000)
+            page.fill("input[name='passwd']", PASSWORD)
+            page.wait_for_selector("input#idSIButton9[value='Iniciar sesión']", timeout=10000)
+            page.click("input#idSIButton9[value='Iniciar sesión']")
+            page.wait_for_timeout(2500)
+
+            page.wait_for_selector("input#idBtn_Back[value='No']", timeout=5000)
+            page.click("input#idBtn_Back[value='No']")
+            page.wait_for_timeout(10000)
+
+
+
+            page.click("button:has-text('Ir a Classic Connect')")
+            page.wait_for_timeout(3000)  # esperar que cargue o actualice
+
+            # Reintentar clicks en calendario después del cambio
+            page.wait_for_selector("#calendar", timeout=5000)
+            page.click(f"#calendar a[data-value='{calendar_date_value_1}']")
+            page.wait_for_timeout(1000)
+
+            page.click(f"#calendar a[data-value='{calendar_date_value_2}']")
+            page.wait_for_timeout(2000)
 
 
         # 4. Reservar un cubículo (usamos inyección de JS porque está dentro de un iframe)
