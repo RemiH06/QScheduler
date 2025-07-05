@@ -12,11 +12,11 @@ qocupaS = os.getenv("qocupas")
 # Params
 dayS = 7                  # A futuro
 topiC = "Hueco"           # Topic (strictly necessary)
-attendeeS = "3"           # Attendees amount
 
-startTimE   = ["", "", "16:00", "", "", "", ""]
-endTimE     = ["", "", "20:00", "", "", "", ""]
-cubiclE     = ["", "", "P-207", "", "", "", ""]
+startTimE   = ["", "", "16:00", "15:00", "", "", ""]
+endTimE     = ["", "", "20:00", "19:00", "", "", ""]
+cubiclE     = ["", "", "P-210", "P-201", "", "", ""]
+attendeeS     = ["", "", "3", "7", "", "", ""]
 # lunes en [0], domingo en [6]
 
 today = datetime.datetime.today().weekday()
@@ -34,6 +34,6 @@ for day_offset in range(7):
                 end=endTimE[target_day], 
                 q=cubiclE[target_day], 
                 name=topiC, 
-                a=attendeeS, 
+                a=attendeeS[target_day], 
                 email=mE, 
                 pw=qocupaS)

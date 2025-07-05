@@ -14,7 +14,7 @@ startTimE = "11:00"       # HH:MM
 endTimE = "15:00"         # also HH:MM
 cubiclE = "P-213"         # Q
 topiC = "Hueco"           # Topic (strictly necessary)
-attendeeS = "3"           # Attendees amount
+attendeeS = "5"           # Attendees amount
 
 def crumble(daysAway: int = dayS, start: str = startTimE, end: str = endTimE, q: str = cubiclE, name: str = topiC, a=attendeeS, email: str = mE, pw: str = qocupaS):
     RESERVATION_DATE = (datetime.datetime.today() + datetime.timedelta(days=daysAway)).strftime("%Y-%m-%d")
