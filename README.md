@@ -13,6 +13,12 @@
 
 ### General Description
 
+```diff
+- THIS PROJECT DOESN'T WORK ANYMORE (since august 2025) due to two factor auth is now needed to login into anything related to ITESO. 
+- Its sole purpose now is to be used as a learning tool for people interested in creating email senders or scrapers.
+- If you're reading this, thank you very much for the interest. 
+```
+
 Scheduler for Outlook meetings, two weeks in advance (sender uses scheduler). NOT RECOMMENDED ❌
 
 Scheduler for meetings via smartway2book (sch uses scraper). RECOMMENDED ✅
