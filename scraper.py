@@ -63,7 +63,7 @@ def crumble(daysAway: int = dayS, start: str = startTimE, end: str = endTimE, q:
         date_click2 = datetime.datetime.today() + datetime.timedelta(days=daysAway)
         calendar_date_value_2 = f"{date_click2.year}/{date_click2.month - 1}/{date_click2.day}"
 
-        page.wait_for_timeout(10000)
+        page.wait_for_timeout(20000)
         # Intentar encontrar el calendario
         if page.query_selector("#calendar"):
             # Si encuentra calendario, hacer clicks normales

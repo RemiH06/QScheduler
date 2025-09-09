@@ -13,10 +13,10 @@ qocupaS = os.getenv("qocupas")
 dayS = 7                  # A futuro
 topiC = "Hueco"           # Topic (strictly necessary)
 
-startTimE   = ["", "", "16:00", "15:00", "", "", ""]
-endTimE     = ["", "", "20:00", "19:00", "", "", ""]
-cubiclE     = ["", "", "P-210", "P-201", "", "", ""]
-attendeeS     = ["", "", "3", "7", "", "", ""]
+startTimE   = ["20:00", "13:00", "16:00", "", "13:00", "", ""]
+endTimE     = ["21:00", "16:00", "20:00", "", "16:00", "", ""]
+cubiclE     = ["P-212", "P-113", "P-113", "", "P-113", "", ""]
+attendeeS     = ["7", "3", "3", "", "3", "", ""]
 # lunes en [0], domingo en [6]
 
 today = datetime.datetime.today().weekday()
